@@ -189,7 +189,8 @@ class PdfController extends Controller
 
     }
     private function parseDiskominfo($text)
-    { $data = [
+    {
+        $data = [
             'judul_rapat'    => '',
             'tanggal'        => '',
             'jam_mulai'      => '',
@@ -204,69 +205,25 @@ class PdfController extends Controller
         // Judul Rapat
         // ==========================
 
-        $judul = $this->findLabel($text, 'hal');
-
-        if ($judul == '') {
-            $judul = $this->findLabel($text, 'agenda');
-        }
-
-        if ($judul == '') {
-            $judul = $this->findLabel($text, 'acara');
-        }
-
-        $data['judul_rapat'] = $judul;
+        $data['judul_rapat'] = $this->findLabel($text, 'acara');
 
         // ==========================
-        // Tanggal
+        // Hari / Tanggal
         // ==========================
 
-        $tanggal = $this->findLabel($text, 'tanggal');
+        $data['tanggal'] = $this->findLabel($text, 'hari/tanggal');
 
-        $bulan = [
-            'januari' => '01',
-            'februari' => '02',
-            'maret' => '03',
-            'april' => '04',
-            'mei' => '05',
-            'juni' => '06',
-            'juli' => '07',
-            'agustus' => '08',
-            'september' => '09',
-            'oktober' => '10',
-            'november' => '11',
-            'desember' => '12'
-        ];
+        if ($data['tanggal'] == '') {
 
-        if (preg_match('/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/i', $tanggal, $m)) {
+            $hari = $this->findLabel($text, 'hari');
 
-            $tgl = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+            $tanggal = $this->findLabel($text, 'tanggal');
 
-            $bln = $bulan[strtolower($m[2])] ?? '01';
+            if ($hari != '' || $tanggal != '') {
 
-            $thn = $m[3];
+                $data['tanggal'] = trim($hari . ' / ' . $tanggal);
 
-            $data['tanggal'] = "$thn-$bln-$tgl";
-        }
-
-        // ==========================
-        // Waktu
-        // ==========================
-
-        $waktu = $this->findLabel($text, 'waktu');
-
-        if ($waktu == '') {
-            $waktu = $this->findLabel($text, 'jam');
-        }
-
-        if (preg_match('/(\d{2})\.(\d{2})/', $waktu, $m)) {
-
-            $data['jam_mulai'] = $m[1] . ':' . $m[2];
-
-        }
-
-        if (preg_match('/s\.d\.\s*(\d{2})\.(\d{2})/i', $waktu, $m)) {
-
-            $data['jam_selesai'] = $m[1] . ':' . $m[2];
+            }
 
         }
 
@@ -274,27 +231,47 @@ class PdfController extends Controller
         // Tempat
         // ==========================
 
-        $tempat = $this->findLabel($text, 'tempat');
+        $data['tempat'] = $this->findLabel($text, 'tempat');
 
-        if ($tempat != '') {
+        // ==========================
+        // Pakaian
+        // ==========================
 
-            $tempat = preg_replace('/media\s*:.*$/is', '', $tempat);
+        $pakaian = $this->findLabel($text, 'pakaian');
 
-            $tempat = trim($tempat);
+        if ($pakaian != '') {
+
+            $data['keterangan'] .= "Pakaian : ".$pakaian."\n";
 
         }
 
-        $data['tempat'] = $tempat;
-
         // ==========================
-        // Media
+        // Jam
         // ==========================
 
-        $media = $this->findLabel($text, 'media');
+        $jam = $this->findLabel($text, 'pukul');
 
-        if ($media != '') {
+        if ($jam == '') {
 
-            $data['keterangan'] .= "Media : " . $media . "\n";
+            $jam = $this->findLabel($text, 'waktu');
+
+        }
+
+        if ($jam != '') {
+
+            if (preg_match('/(\d{2}\.\d{2})\s*WIB\s*s\.d\.\s*(\d{2}\.\d{2})/i', $jam, $m)) {
+
+                $data['jam_mulai'] = str_replace('.', ':', $m[1]);
+
+                $data['jam_selesai'] = str_replace('.', ':', $m[2]);
+
+            }
+
+            elseif (preg_match('/(\d{2}\.\d{2})/i', $jam, $m)) {
+
+                $data['jam_mulai'] = str_replace('.', ':', $m[1]);
+
+            }
 
         }
 
@@ -302,7 +279,7 @@ class PdfController extends Controller
         // Keterangan
         // ==========================
 
-        if (preg_match('/Sehubungan dengan hal tersebut,(.*?)Demikian/s', $text, $m)) {
+        if (preg_match('/Bersama ini(.*?)hari/i', $text, $m)) {
 
             $data['keterangan'] .= trim($m[1]);
 
@@ -312,7 +289,7 @@ class PdfController extends Controller
         // Pimpinan Rapat
         // ==========================
 
-        if (preg_match('/Sekretaris.*?\n(.*?)(?:NIP|$)/is', $text, $m)) {
+        if (preg_match('/([A-Z ]{5,})\s+Balai/s', $text, $m)) {
 
             $nama = trim($m[1]);
 
@@ -324,7 +301,6 @@ class PdfController extends Controller
 
         return $data;
     }
-
 private function parseKemendagri($text)
     {
         $data = [

@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -9,11 +10,14 @@
 
     <title>@yield('title') | SIMRAP</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
 
-    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css"
+          rel="stylesheet">
 
 <style>
 
@@ -30,7 +34,7 @@ body{
 }
 
 /* ============================
-            SIDEBAR
+           SIDEBAR
 ============================ */
 
 .sidebar{
@@ -45,7 +49,12 @@ body{
 
     top:0;
 
-    background:linear-gradient(180deg,#0E5F59,#11786F,#1CB5A3);
+    background:linear-gradient(
+        180deg,
+        #0E5F59,
+        #11786F,
+        #1CB5A3
+    );
 
     color:white;
 
@@ -178,6 +187,10 @@ body{
 
 }
 
+/* ============================
+           CONTENT
+============================ */
+
 .content{
 
     margin-left:260px;
@@ -187,12 +200,17 @@ body{
 }
 
 /* ============================
-            TOPBAR
+           TOPBAR
 ============================ */
 
 .topbar{
 
-    background:linear-gradient(90deg,#136A63,#11786F,#20C4B5);
+    background:linear-gradient(
+        90deg,
+        #136A63,
+        #11786F,
+        #20C4B5
+    );
 
     color:white;
 
@@ -253,7 +271,7 @@ body{
 }
 
 /* ============================
-            CARD
+             CARD
 ============================ */
 
 .card{
@@ -277,7 +295,7 @@ body{
 }
 
 /* ============================
-            TABLE
+             TABLE
 ============================ */
 
 .table{
@@ -309,12 +327,16 @@ body{
 }
 
 /* ============================
-            BUTTON
+             BUTTON
 ============================ */
 
 .btn-success{
 
-    background:linear-gradient(90deg,#0F766E,#16B4A4);
+    background:linear-gradient(
+        90deg,
+        #0F766E,
+        #16B4A4
+    );
 
     border:none;
 
@@ -352,6 +374,10 @@ body{
 
 }
 
+/* ============================
+          DATATABLE
+============================ */
+
 .dataTables_wrapper .dataTables_filter input,
 .dataTables_wrapper .dataTables_length select{
 
@@ -365,11 +391,13 @@ body{
 
 <body>
 
+
 <div class="sidebar">
 
     <div class="logo">
 
-        <img src="{{ asset('images/logo-sumut.png') }}" alt="Logo">
+        <img src="{{ asset('images/logo-sumut.png') }}"
+             alt="Logo">
 
         <h1>SIMRAP</h1>
 
@@ -391,40 +419,95 @@ body{
 
     </div>
 
+
     <hr>
 
-    <a href="{{ route('dashboard') }}"
-       class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
 
-        <i class="bi bi-speedometer2"></i>
+    {{-- =====================================================
+         MENU ADMIN
+    ====================================================== --}}
 
-        Dashboard
+    @if(Auth::check() && Auth::user()->role === 'admin')
 
-    </a>
+        <a href="{{ route('dashboard') }}"
+           class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
 
-    <a href="{{ route('agenda.index') }}"
-       class="{{ request()->routeIs('agenda.*') ? 'active' : '' }}">
+            <i class="bi bi-speedometer2"></i>
 
-        <i class="bi bi-calendar-event"></i>
+            Dashboard
 
-        Data Agenda
+        </a>
 
-    </a>
 
-    <a href="{{ route('laporan.index') }}"
-       class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+        <a href="{{ route('agenda.index') }}"
+           class="{{ request()->routeIs('agenda.*') ? 'active' : '' }}">
 
-        <i class="bi bi-printer"></i>
+            <i class="bi bi-calendar-event"></i>
 
-        Cetak Laporan
+            Data Agenda
 
-    </a>
+        </a>
 
-    <form action="{{ route('logout') }}" method="POST">
+
+        <a href="{{ route('laporan.index') }}"
+           class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+
+            <i class="bi bi-printer"></i>
+
+            Cetak Laporan
+
+        </a>
+
+
+    {{-- =====================================================
+         MENU USER
+    ====================================================== --}}
+
+    @elseif(Auth::check() && Auth::user()->role === 'user')
+
+        <a href="{{ route('dashboard.user') }}"
+           class="{{ request()->routeIs('dashboard.user') ? 'active' : '' }}">
+
+            <i class="bi bi-speedometer2"></i>
+
+            Dashboard
+
+        </a>
+
+
+        <a href="{{ route('user.agenda.index') }}"
+           class="{{ request()->routeIs('user.agenda.*') ? 'active' : '' }}">
+
+            <i class="bi bi-calendar-event"></i>
+
+            Data Agenda
+
+        </a>
+
+
+        <a href="{{ route('user.laporan.index') }}"
+           class="{{ request()->routeIs('user.laporan.*') ? 'active' : '' }}">
+
+            <i class="bi bi-printer"></i>
+
+            Cetak Laporan
+
+        </a>
+
+    @endif
+
+
+    {{-- =====================================================
+         LOGOUT
+    ====================================================== --}}
+
+    <form action="{{ route('logout') }}"
+          method="POST">
 
         @csrf
 
-        <button class="logout-btn" type="submit">
+        <button class="logout-btn"
+                type="submit">
 
             <i class="bi bi-box-arrow-right"></i>
 
@@ -435,19 +518,24 @@ body{
     </form>
 
 </div>
+
+
 <div class="content">
 
     <div class="topbar">
 
         <div>
 
-            <h3>@yield('title')</h3>
+            <h3>
+                @yield('title')
+            </h3>
 
             <p>
                 Sistem Informasi Manajemen Rapat (SIMRAP)
             </p>
 
         </div>
+
 
         <div class="user-info">
 
@@ -469,9 +557,11 @@ body{
 
     </div>
 
+
     @yield('content')
 
 </div>
+
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
